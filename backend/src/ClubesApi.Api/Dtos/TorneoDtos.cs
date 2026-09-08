@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 namespace ClubesApi.Api.Dtos;
 
 public record TorneoRequest(
-    [property: Required, MaxLength(200)] string Nombre,
-    [property: Required] string Deporte,
-    [property: Required, MaxLength(100)] string Categoria,
-    [property: Required] string SistemaCompetencia,
+    [Required, MaxLength(200)] string Nombre,
+    [Required] string Deporte,
+    [Required, MaxLength(100)] string Categoria,
+    [Required] string SistemaCompetencia,
     int PuntosVictoria,
     int PuntosEmpate,
     int PuntosDerrota,

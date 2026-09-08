@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 namespace ClubesApi.Api.Dtos;
 
 public record ReservaRequest(
-    [property: Required] Guid EspacioId,
-    [property: Required] DateOnly Fecha,
-    [property: Required] TimeOnly HoraInicio,
-    [property: Required] TimeOnly HoraFin);
+    [Required] Guid EspacioId,
+    [Required] DateOnly Fecha,
+    [Required] TimeOnly HoraInicio,
+    [Required] TimeOnly HoraFin);
 
 public record CancelarReservaRequest(string? Motivo);
 

@@ -34,7 +34,8 @@ export default function ValidarPagosPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Validar pagos</h1>
       <p className="text-sm text-gray-500">
-        Cola de comprobantes de transferencia pendientes de aprobar o rechazar (ver docs/03-flujos-clave.md).
+        Cola de transferencias (con comprobante) y pagos en efectivo pendientes de aprobar o rechazar
+        (ver docs/03-flujos-clave.md).
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -44,6 +45,7 @@ export default function ValidarPagosPage() {
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
               <th className="px-4 py-2">Fecha</th>
+              <th className="px-4 py-2">Medio</th>
               <th className="px-4 py-2">Monto</th>
               <th className="px-4 py-2">Comprobante</th>
               <th className="px-4 py-2" />
@@ -51,11 +53,12 @@ export default function ValidarPagosPage() {
           </thead>
           <tbody>
             {pagos.length === 0 && (
-              <tr><td className="px-4 py-3 text-gray-400" colSpan={4}>No hay transferencias pendientes de validar.</td></tr>
+              <tr><td className="px-4 py-3 text-gray-400" colSpan={5}>No hay pagos pendientes de validar.</td></tr>
             )}
             {pagos.map((p) => (
               <tr key={p.pagoId} className="border-t border-gray-100">
                 <td className="px-4 py-2">{new Date(p.fechaPago).toLocaleString()}</td>
+                <td className="px-4 py-2">{p.metodo}</td>
                 <td className="px-4 py-2">${p.monto}</td>
                 <td className="px-4 py-2">
                   {p.comprobanteUrl ? (

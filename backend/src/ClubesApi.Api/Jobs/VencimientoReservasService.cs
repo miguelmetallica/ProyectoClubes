@@ -47,30 +47,37 @@ public class VencimientoReservasService : BackgroundService
 
         var candidatas = await db.Reservas
             .Include(r => r.Espacio)
-            .Include(r => r.Pago)
+            .Include(r => r.Pagos)
             .Where(r => r.Estado == EstadoReserva.PendienteValidacion &&
-                        r.Pago != null && r.Pago.Metodo == MetodoPago.Transferencia && r.Pago.Estado == EstadoPago.Pendiente &&
+                        r.Pagos.Any(p => p.Metodo == MetodoPago.Transferencia && p.Estado == EstadoPago.Pendiente) &&
                         r.Espacio.VencimientoValidacionHoras > 0)
             .ToListAsync(stoppingToken);
 
         var ahora = DateTime.UtcNow;
-        var vencidas = candidatas.Where(r => r.Pago!.FechaPago.AddHours(r.Espacio.VencimientoValidacionHoras) <= ahora).ToList();
+        var cantidadVencida = 0;
 
-        foreach (var reserva in vencidas)
+        foreach (var reserva in candidatas)
         {
+            var pago = reserva.Pagos.Single(p => p.Metodo == MetodoPago.Transferencia && p.Estado == EstadoPago.Pendiente);
+            if (pago.FechaPago.AddHours(reserva.Espacio.VencimientoValidacionHoras) > ahora)
+            {
+                continue;
+            }
+
             reserva.Estado = EstadoReserva.Cancelada;
             reserva.CanceladaEn = ahora;
             reserva.MotivoCancelacion = "Vencimiento automático: comprobante de transferencia no validado a tiempo.";
             reserva.UpdatedAt = ahora;
 
-            reserva.Pago!.Estado = EstadoPago.Rechazado;
-            reserva.Pago.MotivoRechazo = "Vencimiento automático sin validar.";
+            pago.Estado = EstadoPago.Rechazado;
+            pago.MotivoRechazo = "Vencimiento automático sin validar.";
+            cantidadVencida++;
         }
 
-        if (vencidas.Count > 0)
+        if (cantidadVencida > 0)
         {
             await db.SaveChangesAsync(stoppingToken);
-            _logger.LogInformation("Se vencieron automáticamente {Cantidad} reserva(s) pendientes de validación.", vencidas.Count);
+            _logger.LogInformation("Se vencieron automáticamente {Cantidad} reserva(s) pendientes de validación.", cantidadVencida);
         }
     }
 }

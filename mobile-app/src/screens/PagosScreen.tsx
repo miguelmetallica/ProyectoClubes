@@ -5,9 +5,9 @@ export default function PagosScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Pagos</Text>
       <Text style={styles.body}>
-        Comprobantes, saldo y medios de pago. El pago de una reserva puntual ya se registra desde la pantalla
-        Reservar → Confirmación (los 4 medios: Mercado Pago, tarjeta, transferencia y efectivo, ver
-        docs/03-flujos-clave.md); esta vista consolidada de historial de pagos queda para Fase 2.
+        Comprobantes y saldo. El pago de una reserva puntual se hace desde &quot;Mis reservas&quot; tocando
+        &quot;Pagar&quot; en cualquier turno pendiente de pago (los 4 medios: Mercado Pago, tarjeta, transferencia y
+        efectivo, ver docs/03-flujos-clave.md); esta vista consolidada de historial de pagos queda pendiente.
       </Text>
     </View>
   );

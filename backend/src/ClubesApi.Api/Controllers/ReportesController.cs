@@ -90,13 +90,17 @@ public class ReportesController : ControllerBase
         var desdeEfectivo = desde ?? DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(-1);
         var hastaEfectivo = hasta ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var ranking = await _db.Reservas
+        var horas = await _db.Reservas
             .Where(r => r.Estado != EstadoReserva.Cancelada && r.Fecha >= desdeEfectivo && r.Fecha <= hastaEfectivo)
-            .GroupBy(r => r.HoraInicio)
+            .Select(r => r.HoraInicio)
+            .ToListAsync();
+
+        var ranking = horas
+            .GroupBy(h => h)
             .Select(g => new HorarioPicoRow(g.Key, g.Count()))
             .OrderByDescending(h => h.CantidadTurnos)
             .Take(10)
-            .ToListAsync();
+            .ToList();
 
         return Ok(ranking);
     }

@@ -39,6 +39,10 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
+        // Sin esto, ASP.NET Core remapea claims cortos como "sub" a URIs largas
+        // (ClaimTypes.NameIdentifier) al validar el token, y ClaimsPrincipalExtensions
+        // deja de encontrar el claim "sub" que JwtTokenService efectivamente emitió.
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

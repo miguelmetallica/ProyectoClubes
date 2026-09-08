@@ -4,6 +4,7 @@ using ClubesApi.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClubesApi.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ClubesDbContext))]
-    partial class ClubesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908115958_ReservaPagosUnoAMuchos")]
+    partial class ReservaPagosUnoAMuchos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

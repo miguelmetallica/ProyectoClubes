@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace ClubesApi.Api.Dtos;
 
 public record EspacioRequest(
-    [property: Required, MaxLength(200)] string Nombre,
-    [property: Required] string Deporte,
-    [property: Required] string Modalidad,
+    [Required, MaxLength(200)] string Nombre,
+    [Required] string Deporte,
+    [Required] string Modalidad,
     decimal PrecioBase,
     decimal PctSena,
     int VentanaCancelacionHoras,

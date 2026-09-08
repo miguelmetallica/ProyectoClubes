@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace ClubesApi.Api.Dtos;
 
 public record DeudaRequest(
-    [property: Required] Guid ClienteId,
-    [property: Required, MaxLength(200)] string Concepto,
+    [Required] Guid ClienteId,
+    [Required, MaxLength(200)] string Concepto,
     decimal Monto,
     DateOnly Vencimiento);
 

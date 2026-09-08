@@ -39,6 +39,27 @@ dotnet run --project src/ClubesApi.Api
 
 Swagger queda disponible en `/swagger` en ambiente `Development`.
 
+## Notas técnicas importantes
+
+Dos gotchas de ASP.NET Core que costó encontrar (solo aparecen en runtime, contra una
+base de datos real — nunca en `dotnet build` ni generando el Swagger) y que no hay que
+revertir sin querer:
+
+- **DTOs de request son records con constructor primario**: los atributos de validación
+  van sin el prefijo `property:` (`[Required]`, no `[property: Required]`). Usar
+  `[property: ...]` hace que ASP.NET Core tire `InvalidOperationException` al validar
+  *cualquier* request con body — rompe todos los POST/PUT de la API.
+- **`AddJwtBearer` tiene `options.MapInboundClaims = false`** en `Program.cs`. Sin esto,
+  ASP.NET Core remapea el claim corto `sub` a la URI larga `ClaimTypes.NameIdentifier`
+  al validar el token, y `ClaimsPrincipalExtensions.GetClienteId()` deja de encontrarlo
+  — rompe todo endpoint autenticado que necesite el usuario actual.
+
+También: al agrupar (`GroupBy`) sobre resultados que vienen de varios `Include`/joins de
+navegación, no se puede proyectar directo a un record con un agregado (`g.Count()`) en el
+mismo `Select` — EF Core no lo traduce a SQL. El patrón usado en el proyecto (ver
+`TorneosController.GetTarjetas`, `GetGoleadores`, `ReportesController.GetHorariosPico`)
+es materializar con `.ToListAsync()` primero y agrupar en memoria después.
+
 ## Migraciones
 
 ```bash
@@ -50,15 +71,22 @@ dotnet ef migrations add NombreMigracion --project src/ClubesApi.Infrastructure 
 **Fase 1 — núcleo de reservas**
 - `POST /api/auth/register`, `POST /api/auth/login`
 - `GET/POST/PUT/DELETE /api/espacios` (gestión de espacios, solo admin puede escribir)
-- `GET/POST /api/reservas`, `POST /api/reservas/{id}/cancelar`
+- `GET/POST /api/reservas`, `POST /api/reservas/{id}/cancelar` (el monto a reintegrar
+  es lo realmente pagado y validado, no un cálculo teórico — si nunca se cobró nada, no
+  hay nada que reintegrar)
 - `GET /api/clientes`, `GET /api/clientes/me`
 
 **Fase 2 — cobranza y económico**
 - `POST /api/pagos` (los 4 medios; Mercado Pago crea una preferencia real y devuelve
-  `checkoutUrl`, tarjeta directa confirma al instante como placeholder hasta que el
-  negocio elija una pasarela, transferencia y efectivo igual que en Fase 1)
+  `checkoutUrl`; tarjeta directa es la única que confirma al instante, como placeholder
+  hasta que el negocio elija una pasarela; transferencia y efectivo quedan `Pendiente`
+  hasta que un admin los confirma manualmente. Valida que el monto sea al menos la seña
+  del espacio, y que la reserva no tenga ya un pago activo — `Reserva` tiene muchos
+  `Pago` a lo largo del tiempo, no uno solo, para permitir reintentar tras un rechazo)
 - `POST /api/pagos/webhook/mercadopago` (público, sin auth: notificación de Mercado Pago)
-- `GET /api/pagos/pendientes-validacion`, `POST /api/pagos/{id}/aprobar`, `POST /api/pagos/{id}/rechazar`
+- `GET /api/pagos/pendientes-validacion` (transferencias y efectivo pendientes),
+  `POST /api/pagos/{id}/aprobar`, `POST /api/pagos/{id}/rechazar` (ambos aplican a
+  transferencia o efectivo — para efectivo es "el cliente pagó en persona al llegar")
 - `GET/POST/DELETE /api/deudas`, `POST /api/deudas/{id}/marcar-pagada`
 - `GET/POST/DELETE /api/gastos`
 - `GET /api/reportes/balance`, `GET /api/reportes/ocupacion`

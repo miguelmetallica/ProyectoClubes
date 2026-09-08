@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace ClubesApi.Api.Dtos;
 
 public record GastoRequest(
-    [property: Required, MaxLength(200)] string Concepto,
+    [Required, MaxLength(200)] string Concepto,
     decimal Monto,
     DateOnly Fecha);
 

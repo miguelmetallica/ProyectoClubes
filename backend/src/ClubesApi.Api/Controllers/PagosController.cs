@@ -28,13 +28,14 @@ public class PagosController : ControllerBase
         p.PagoId, p.ReservaId, p.Metodo.ToString(), p.Monto, p.Estado.ToString(),
         p.ComprobanteUrl, p.FechaPago, p.ValidadoPor, p.ValidadoEn, p.MotivoRechazo, checkoutUrl);
 
-    /// <summary>Cola de "Validar pagos" del admin: transferencias pendientes de aprobar/rechazar.</summary>
+    /// <summary>Cola de "Validar pagos" del admin: transferencias (con comprobante) y pagos en
+    /// efectivo (a confirmar cuando el cliente llega al club) pendientes de aprobar/rechazar.</summary>
     [HttpGet("pendientes-validacion")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<PagoResponse>>> GetPendientesValidacion()
     {
         var pagos = await _db.Pagos
-            .Where(p => p.Metodo == MetodoPago.Transferencia && p.Estado == EstadoPago.Pendiente)
+            .Where(p => (p.Metodo == MetodoPago.Transferencia || p.Metodo == MetodoPago.Efectivo) && p.Estado == EstadoPago.Pendiente)
             .OrderBy(p => p.FechaPago)
             .ToListAsync();
 
@@ -59,8 +60,8 @@ public class PagosController : ControllerBase
     /// Registra el pago de una reserva según el medio elegido (ver docs/03-flujos-clave.md):
     /// Mercado Pago se confirma via webhook una vez que el cliente paga en el checkout;
     /// tarjeta directa confirma al instante (pasarela todavía a definir con el negocio);
-    /// transferencia queda pendiente de validación manual; efectivo queda pendiente hasta
-    /// que el cliente llega al club.
+    /// transferencia y efectivo quedan pendientes de que el admin los confirme manualmente
+    /// (comprobante validado, o cliente pagó en persona al llegar al club).
     /// </summary>
     [HttpPost]
     public async Task<ActionResult<PagoResponse>> Create(PagoRequest request)
@@ -78,9 +79,22 @@ public class PagosController : ControllerBase
             return Forbid();
         }
 
+        var yaTienePagoActivo = await _db.Pagos.AnyAsync(p =>
+            p.ReservaId == reserva.ReservaId && p.Estado != EstadoPago.Rechazado);
+        if (yaTienePagoActivo)
+        {
+            return Conflict("Esta reserva ya tiene un pago pendiente o validado.");
+        }
+
         if (metodo == MetodoPago.Transferencia && string.IsNullOrWhiteSpace(request.ComprobanteUrl))
         {
             return BadRequest("La transferencia requiere adjuntar comprobante.");
+        }
+
+        var montoMinimo = reserva.PrecioTotal * (reserva.Espacio.PctSena / 100m);
+        if (request.Monto < montoMinimo)
+        {
+            return BadRequest($"El monto debe ser al menos la seña de ${montoMinimo:0.00}.");
         }
 
         var pago = new Pago
@@ -91,7 +105,7 @@ public class PagosController : ControllerBase
             Monto = request.Monto,
             ComprobanteUrl = request.ComprobanteUrl,
             FechaPago = DateTime.UtcNow,
-            Estado = metodo is MetodoPago.Transferencia or MetodoPago.MercadoPago ? EstadoPago.Pendiente : EstadoPago.Validado
+            Estado = metodo == MetodoPago.Tarjeta ? EstadoPago.Validado : EstadoPago.Pendiente
         };
 
         reserva.Estado = metodo switch
@@ -175,7 +189,10 @@ public class PagosController : ControllerBase
     {
         var pago = await _db.Pagos.Include(p => p.Reserva).SingleOrDefaultAsync(p => p.PagoId == id);
         if (pago is null) return NotFound();
-        if (pago.Metodo != MetodoPago.Transferencia) return BadRequest("Solo aplica a pagos por transferencia.");
+        if (pago.Metodo is not (MetodoPago.Transferencia or MetodoPago.Efectivo))
+        {
+            return BadRequest("Solo aplica a pagos por transferencia o efectivo.");
+        }
 
         pago.Estado = EstadoPago.Validado;
         pago.ValidadoPor = User.GetClienteId();
@@ -193,7 +210,10 @@ public class PagosController : ControllerBase
     {
         var pago = await _db.Pagos.Include(p => p.Reserva).SingleOrDefaultAsync(p => p.PagoId == id);
         if (pago is null) return NotFound();
-        if (pago.Metodo != MetodoPago.Transferencia) return BadRequest("Solo aplica a pagos por transferencia.");
+        if (pago.Metodo is not (MetodoPago.Transferencia or MetodoPago.Efectivo))
+        {
+            return BadRequest("Solo aplica a pagos por transferencia o efectivo.");
+        }
 
         pago.Estado = EstadoPago.Rechazado;
         pago.ValidadoPor = User.GetClienteId();

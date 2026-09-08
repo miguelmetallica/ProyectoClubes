@@ -226,12 +226,16 @@ public class TorneosController : ControllerBase
     [HttpGet("{id:guid}/goleadores")]
     public async Task<ActionResult<IEnumerable<GoleadorRow>>> GetGoleadores(Guid id)
     {
-        var goleadores = await _db.EventosPartido
+        var eventos = await _db.EventosPartido
             .Where(ev => ev.Partido.Zona.TorneoId == id && ev.Tipo == TipoEventoPartido.Gol)
-            .GroupBy(ev => new { ev.JugadorId, ev.Jugador.Nombre, EquipoNombre = ev.Jugador.Equipo.Nombre })
+            .Select(ev => new { ev.JugadorId, ev.Jugador.Nombre, EquipoNombre = ev.Jugador.Equipo.Nombre })
+            .ToListAsync();
+
+        var goleadores = eventos
+            .GroupBy(ev => new { ev.JugadorId, ev.Nombre, ev.EquipoNombre })
             .Select(g => new GoleadorRow(g.Key.JugadorId, g.Key.Nombre, g.Key.EquipoNombre, g.Count()))
             .OrderByDescending(g => g.Goles)
-            .ToListAsync();
+            .ToList();
 
         return Ok(goleadores);
     }

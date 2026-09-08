@@ -20,5 +20,9 @@ public class Reserva
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public Pago? Pago { get; set; }
+    /// <summary>
+    /// Uno-a-muchos: un intento de pago rechazado (transferencia rechazada, Mercado Pago
+    /// rechazado/cancelado) no debe impedir un nuevo intento sobre la misma reserva.
+    /// </summary>
+    public ICollection<Pago> Pagos { get; set; } = new List<Pago>();
 }

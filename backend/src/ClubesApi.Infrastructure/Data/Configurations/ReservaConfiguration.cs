@@ -14,9 +14,9 @@ public class ReservaConfiguration : IEntityTypeConfiguration<Reserva>
         builder.Property(r => r.MontoReintegrado).HasColumnType("decimal(12,2)");
         builder.Property(r => r.MotivoCancelacion).HasMaxLength(500);
 
-        builder.HasOne(r => r.Pago)
+        builder.HasMany(r => r.Pagos)
             .WithOne(p => p.Reserva)
-            .HasForeignKey<Pago>(p => p.ReservaId)
+            .HasForeignKey(p => p.ReservaId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

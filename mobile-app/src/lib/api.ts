@@ -73,6 +73,7 @@ export type PagoResponse = {
   estado: string;
   comprobanteUrl?: string | null;
   fechaPago: string;
+  checkoutUrl?: string | null;
 };
 
 export type TorneoResponse = {

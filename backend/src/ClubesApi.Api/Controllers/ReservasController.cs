@@ -98,7 +98,7 @@ public class ReservasController : ControllerBase
     [HttpPost("{id:guid}/cancelar")]
     public async Task<ActionResult<ReservaResponse>> Cancelar(Guid id, CancelarReservaRequest request)
     {
-        var reserva = await _db.Reservas.Include(r => r.Espacio).SingleOrDefaultAsync(r => r.ReservaId == id);
+        var reserva = await _db.Reservas.Include(r => r.Espacio).Include(r => r.Pagos).SingleOrDefaultAsync(r => r.ReservaId == id);
         if (reserva is null) return NotFound();
 
         if (!User.IsInRole("Admin") && reserva.ClienteId != User.GetClienteId())
@@ -113,11 +113,12 @@ public class ReservasController : ControllerBase
 
         var horaTurno = reserva.Fecha.ToDateTime(reserva.HoraInicio);
         var dentroDeVentana = horaTurno - DateTime.Now >= TimeSpan.FromHours(reserva.Espacio.VentanaCancelacionHoras);
+        var montoPagado = reserva.Pagos.Where(p => p.Estado == EstadoPago.Validado).Sum(p => p.Monto);
 
         reserva.Estado = EstadoReserva.Cancelada;
         reserva.CanceladaEn = DateTime.UtcNow;
         reserva.MotivoCancelacion = request.Motivo;
-        reserva.MontoReintegrado = dentroDeVentana ? reserva.PrecioTotal * (reserva.Espacio.PctSena / 100m) : 0m;
+        reserva.MontoReintegrado = dentroDeVentana ? montoPagado : 0m;
         reserva.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();

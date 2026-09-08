@@ -18,14 +18,14 @@ public record PartidoResponse(
     string Estado);
 
 public record ProgramarPartidoRequest(
-    [property: Required] Guid EspacioId,
-    [property: Required] DateOnly Fecha,
-    [property: Required] TimeOnly Hora);
+    [Required] Guid EspacioId,
+    [Required] DateOnly Fecha,
+    [Required] TimeOnly Hora);
 
 public record EventoRequest(
-    [property: Required] Guid JugadorId,
-    [property: Required] string Tipo,
-    [property: Required] int Minuto);
+    [Required] Guid JugadorId,
+    [Required] string Tipo,
+    [Required] int Minuto);
 
 public record ResultadoPartidoRequest(
     int GolesLocal,
