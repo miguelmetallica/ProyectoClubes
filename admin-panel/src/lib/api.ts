@@ -79,6 +79,47 @@ export type PagoResponse = {
   motivoRechazo?: string | null;
 };
 
+export type DeudaResponse = {
+  deudaId: string;
+  clienteId: string;
+  concepto: string;
+  monto: number;
+  vencimiento: string;
+  estado: string;
+};
+
+export type DeudaRequest = {
+  clienteId: string;
+  concepto: string;
+  monto: number;
+  vencimiento: string;
+};
+
+export type GastoResponse = {
+  gastoId: string;
+  concepto: string;
+  monto: number;
+  fecha: string;
+};
+
+export type GastoRequest = Omit<GastoResponse, "gastoId">;
+
+export type BalanceResponse = {
+  desde: string;
+  hasta: string;
+  ingresos: number;
+  gastos: number;
+  balance: number;
+  deudaPendienteTotal: number;
+};
+
+export type OcupacionEspacioResponse = {
+  espacioId: string;
+  espacioNombre: string;
+  turnosConfirmados: number;
+  facturacion: number;
+};
+
 export const api = {
   login: (email: string, password: string) =>
     apiFetch<AuthResponse>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
@@ -100,4 +141,32 @@ export const api = {
     apiFetch<PagoResponse>(`/pagos/${id}/aprobar`, { method: "POST" }, token),
   rechazarPago: (token: string, id: string, motivo: string) =>
     apiFetch<PagoResponse>(`/pagos/${id}/rechazar`, { method: "POST", body: JSON.stringify({ motivo }) }, token),
+
+  getDeudas: (token: string, clienteId?: string) =>
+    apiFetch<DeudaResponse[]>(`/deudas${clienteId ? `?clienteId=${clienteId}` : ""}`, {}, token),
+  crearDeuda: (token: string, body: DeudaRequest) =>
+    apiFetch<DeudaResponse>("/deudas", { method: "POST", body: JSON.stringify(body) }, token),
+  marcarDeudaPagada: (token: string, id: string) =>
+    apiFetch<DeudaResponse>(`/deudas/${id}/marcar-pagada`, { method: "POST" }, token),
+  eliminarDeuda: (token: string, id: string) => apiFetch<void>(`/deudas/${id}`, { method: "DELETE" }, token),
+
+  getGastos: (token: string) => apiFetch<GastoResponse[]>("/gastos", {}, token),
+  crearGasto: (token: string, body: GastoRequest) =>
+    apiFetch<GastoResponse>("/gastos", { method: "POST", body: JSON.stringify(body) }, token),
+  eliminarGasto: (token: string, id: string) => apiFetch<void>(`/gastos/${id}`, { method: "DELETE" }, token),
+
+  getBalance: (token: string, desde?: string, hasta?: string) => {
+    const params = new URLSearchParams();
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+    const qs = params.toString();
+    return apiFetch<BalanceResponse>(`/reportes/balance${qs ? `?${qs}` : ""}`, {}, token);
+  },
+  getOcupacion: (token: string, desde?: string, hasta?: string) => {
+    const params = new URLSearchParams();
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+    const qs = params.toString();
+    return apiFetch<OcupacionEspacioResponse[]>(`/reportes/ocupacion${qs ? `?${qs}` : ""}`, {}, token);
+  },
 };

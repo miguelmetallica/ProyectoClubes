@@ -10,6 +10,7 @@ public record PagoRequest(
 
 public record RechazarPagoRequest([property: Required] string Motivo);
 
+// CheckoutUrl solo se completa para Mercado Pago: URL del checkout a la que redirigir al cliente.
 public record PagoResponse(
     Guid PagoId,
     Guid ReservaId,
@@ -20,4 +21,5 @@ public record PagoResponse(
     DateTime FechaPago,
     Guid? ValidadoPor,
     DateTime? ValidadoEn,
-    string? MotivoRechazo);
+    string? MotivoRechazo,
+    string? CheckoutUrl = null);

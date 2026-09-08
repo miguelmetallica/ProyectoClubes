@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/calendario", label: "Calendario maestro" },
   { href: "/clientes", label: "Clientes" },
   { href: "/pagos", label: "Pagos" },
+  { href: "/gastos", label: "Gastos" },
   { href: "/torneos", label: "Torneos" },
   { href: "/reportes", label: "Reportes" },
   { href: "/configuracion", label: "Configuración" },

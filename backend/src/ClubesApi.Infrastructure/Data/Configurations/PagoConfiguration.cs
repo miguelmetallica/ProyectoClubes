@@ -13,6 +13,7 @@ public class PagoConfiguration : IEntityTypeConfiguration<Pago>
         builder.Property(p => p.Estado).HasConversion<string>().HasMaxLength(20);
         builder.Property(p => p.Monto).HasColumnType("decimal(12,2)");
         builder.Property(p => p.ComprobanteUrl).HasMaxLength(500);
+        builder.Property(p => p.ExternalPaymentId).HasMaxLength(100);
         builder.Property(p => p.MotivoRechazo).HasMaxLength(500);
 
         builder.HasOne(p => p.Validador)

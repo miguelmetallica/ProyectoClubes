@@ -1,6 +1,8 @@
 using System.Text;
 using ClubesApi.Api.Auth;
+using ClubesApi.Api.Payments;
 using ClubesApi.Infrastructure.Data;
+using MercadoPago.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddSingleton<JwtTokenService>();
+
+builder.Services.Configure<MercadoPagoOptions>(builder.Configuration.GetSection(MercadoPagoOptions.SectionName));
+builder.Services.AddScoped<MercadoPagoPaymentService>();
+MercadoPagoConfig.AccessToken = builder.Configuration.GetSection(MercadoPagoOptions.SectionName)["AccessToken"];
 
 builder.Services.AddDbContext<ClubesDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClubesDb")));

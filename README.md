@@ -58,12 +58,16 @@ npm start
   Torneos, Económico) ya están creadas en `backend/`, con su migración inicial de EF Core.
 - **Fase 1 (núcleo de reservas)**: expuesta como API — autenticación JWT, `Espacios`,
   `Reservas` (con detección de solapamiento y cancelación según ventana configurable por
-  espacio) y `Pagos` (circuito completo de transferencia con validación manual). El panel
-  admin y la app cliente ya consumen estos endpoints.
-- **Fase 2 (cobranza) y Fase 3 (torneos)**: entidades modeladas en la base de datos, pero
-  sin endpoints ni pantallas todavía — son el próximo paso natural.
-- **Fase 4 (reportes)**: pantallas placeholder en el panel admin, a implementar agregando
-  `Reserva` + `Pago`.
+  espacio) y `Pagos`. El panel admin y la app cliente ya consumen estos endpoints.
+- **Fase 2 (cobranza)**: los 4 medios de pago funcionando (Mercado Pago con preferencia
+  real + webhook de confirmación, transferencia con validación manual, tarjeta directa
+  y efectivo), más el módulo económico completo (`Deuda`, `Gasto`) y un balance general
+  en Reportes. La pasarela de tarjeta sigue siendo un placeholder porque el negocio
+  todavía no eligió cuál usar (ver `docs/05-reglas-de-negocio.md`).
+- **Fase 3 (torneos)**: entidades modeladas en la base de datos, pero sin endpoints ni
+  pantallas todavía — es el próximo paso natural.
+- **Fase 4 (reportes)**: el balance y la facturación por espacio ya están; falta el %
+  de ocupación real, que requiere modelar los horarios de apertura del complejo.
 
 ## Origen
 
