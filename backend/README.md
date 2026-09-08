@@ -84,9 +84,33 @@ es materializar con `.ToListAsync()` primero y agrupar en memoria después.
 
 ## Migraciones
 
+Con la CLI (`dotnet-ef`, herramienta global — instalar una vez con
+`dotnet tool install --global dotnet-ef` si no está):
+
 ```bash
 dotnet ef migrations add NombreMigracion --project src/ClubesApi.Infrastructure --startup-project src/ClubesApi.Api --output-dir Data/Migrations
+dotnet ef database update --project src/ClubesApi.Infrastructure --startup-project src/ClubesApi.Api
 ```
+
+Desde Visual Studio, con la **Consola del Administrador de paquetes** (PMC): el
+proyecto `ClubesApi.Api` ya incluye el paquete `Microsoft.EntityFrameworkCore.Tools`
+(distinto de la herramienta `dotnet-ef` de la CLI — son dos mecanismos separados para
+lo mismo), así que los cmdlets `Add-Migration`/`Update-Database` funcionan directo:
+
+1. En el desplegable **"Default project"** de la PMC, elegir `ClubesApi.Api`.
+2. Confirmar que `ClubesApi.Api` es el **Startup Project** (Solution Explorer → clic
+   derecho → Set as Startup Project).
+3. Ejecutar:
+
+```powershell
+Add-Migration NombreMigracion -Project ClubesApi.Infrastructure -StartupProject ClubesApi.Api -OutputDir Data/Migrations
+Update-Database -Project ClubesApi.Infrastructure -StartupProject ClubesApi.Api
+```
+
+Si `Update-Database`/`Add-Migration` siguen sin reconocerse después de esto: cerrar y
+reabrir la solución (o `Tools > NuGet Package Manager > Package Manager Console` para
+forzar la recarga de cmdlets), y verificar en el Explorador de soluciones que
+`ClubesApi.Api` tiene referenciado el paquete `Microsoft.EntityFrameworkCore.Tools`.
 
 ## Endpoints implementados
 
