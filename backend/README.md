@@ -39,6 +39,27 @@ dotnet run --project src/ClubesApi.Api
 
 Swagger queda disponible en `/swagger` en ambiente `Development`.
 
+### Primer usuario admin
+
+`POST /api/auth/register` siempre crea clientes con rol `Cliente` — no hay forma de
+crear un admin desde la API. Al arrancar, `AdminSeeder` crea automáticamente un usuario
+Admin si están configurados `Seed:AdminEmail` y `Seed:AdminPassword` (ambos vacíos por
+defecto en `appsettings.json`, así que en producción no seedea nada hasta que se
+configuren explícitamente). Es idempotente: si el email ya existe, no hace nada.
+
+En **Development** (`appsettings.Development.json`) ya viene configurado un admin de
+desarrollo:
+
+```
+email: admin@clubes.local
+password: Admin123!
+```
+
+⚠️ Son credenciales de desarrollo, no secretas — **nunca configurar `Seed:AdminEmail`/
+`Seed:AdminPassword` en producción con esta contraseña**. En un ambiente real, definir
+esas dos variables (vía `dotnet user-secrets` o variables de entorno) con una contraseña
+propia solo la primera vez, o crear el admin a mano y no configurar el seed.
+
 ## Notas técnicas importantes
 
 Dos gotchas de ASP.NET Core que costó encontrar (solo aparecen en runtime, contra una

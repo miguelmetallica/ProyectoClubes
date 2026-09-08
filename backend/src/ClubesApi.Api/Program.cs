@@ -2,6 +2,7 @@ using System.Text;
 using ClubesApi.Api.Auth;
 using ClubesApi.Api.Jobs;
 using ClubesApi.Api.Payments;
+using ClubesApi.Api.Seed;
 using ClubesApi.Api.Serialization;
 using ClubesApi.Infrastructure.Data;
 using MercadoPago.Config;
@@ -86,6 +87,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+await AdminSeeder.SeedAsync(app.Services, app.Configuration, app.Logger);
 
 if (app.Environment.IsDevelopment())
 {
