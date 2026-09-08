@@ -9,9 +9,9 @@ administración económica que Las Cañas no cubre.
 
 ## Qué incluye este repositorio
 
-Esta primera entrega es **documentación funcional y técnica**, pensada para que el
-equipo de desarrollo pueda arrancar a programar sin depender de reuniones previas.
-No incluye código todavía.
+Además de la documentación funcional y técnica, el repositorio ya tiene el **esqueleto
+de código** de las tres partes del sistema, listo para ir sumando la lógica de negocio
+de cada fase del roadmap.
 
 | Documento | Contenido |
 |---|---|
@@ -22,6 +22,48 @@ No incluye código todavía.
 | [`docs/05-reglas-de-negocio.md`](docs/05-reglas-de-negocio.md) | Seña, cancelación, medios de pago, formato de torneo — todo lo decidido y lo que falta precisar |
 | [`docs/06-modelo-de-datos.md`](docs/06-modelo-de-datos.md) | Entidades, campos, tipos sugeridos y relaciones — listo para migraciones |
 | [`docs/07-roadmap-sugerido.md`](docs/07-roadmap-sugerido.md) | Propuesta de fases de construcción (MVP → V2) |
+
+## Estructura del monorepo
+
+| Carpeta | Qué es | Stack |
+|---|---|---|
+| [`backend/`](backend/) | API REST | .NET 8 (ASP.NET Core) + Entity Framework Core + SQL Server |
+| [`admin-panel/`](admin-panel/) | Panel de Administración (web/tablet) | Next.js + React + TypeScript + Tailwind |
+| [`mobile-app/`](mobile-app/) | App del Cliente (celular) | Expo (React Native) + TypeScript |
+
+Cada carpeta tiene su propio README con instrucciones de instalación y ejecución.
+En términos generales:
+
+```bash
+# Backend (requiere SQL Server; ver backend/README.md para la connection string)
+cd backend
+dotnet ef database update --project src/ClubesApi.Infrastructure --startup-project src/ClubesApi.Api
+dotnet run --project src/ClubesApi.Api
+
+# Panel Administrador
+cd admin-panel
+cp .env.local.example .env.local   # ajustar NEXT_PUBLIC_API_URL si hace falta
+npm install
+npm run dev
+
+# App Cliente
+cd mobile-app
+npm install
+npm start
+```
+
+### Estado actual (alineado con `docs/07-roadmap-sugerido.md`)
+
+- **Modelado por completo**: las 12 entidades del modelo de datos (Identidad/Reservas,
+  Torneos, Económico) ya están creadas en `backend/`, con su migración inicial de EF Core.
+- **Fase 1 (núcleo de reservas)**: expuesta como API — autenticación JWT, `Espacios`,
+  `Reservas` (con detección de solapamiento y cancelación según ventana configurable por
+  espacio) y `Pagos` (circuito completo de transferencia con validación manual). El panel
+  admin y la app cliente ya consumen estos endpoints.
+- **Fase 2 (cobranza) y Fase 3 (torneos)**: entidades modeladas en la base de datos, pero
+  sin endpoints ni pantallas todavía — son el próximo paso natural.
+- **Fase 4 (reportes)**: pantallas placeholder en el panel admin, a implementar agregando
+  `Reserva` + `Pago`.
 
 ## Origen
 
