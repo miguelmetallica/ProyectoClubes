@@ -1,6 +1,8 @@
 using System.Text;
 using ClubesApi.Api.Auth;
+using ClubesApi.Api.Jobs;
 using ClubesApi.Api.Payments;
+using ClubesApi.Api.Serialization;
 using ClubesApi.Infrastructure.Data;
 using MercadoPago.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,7 +12,8 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter()));
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
@@ -22,6 +25,8 @@ MercadoPagoConfig.AccessToken = builder.Configuration.GetSection(MercadoPagoOpti
 
 builder.Services.AddDbContext<ClubesDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClubesDb")));
+
+builder.Services.AddHostedService<VencimientoReservasService>();
 
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("Falta configurar la sección Jwt en appsettings.json.");

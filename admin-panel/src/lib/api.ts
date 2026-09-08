@@ -47,6 +47,7 @@ export type EspacioResponse = {
   precioBase: number;
   pctSena: number;
   ventanaCancelacionHoras: number;
+  vencimientoValidacionHoras: number;
 };
 
 export type EspacioRequest = Omit<EspacioResponse, "espacioId">;
@@ -118,7 +119,14 @@ export type OcupacionEspacioResponse = {
   espacioNombre: string;
   turnosConfirmados: number;
   facturacion: number;
+  horasOcupadas: number;
+  ocupacionPct: number;
 };
+
+export type HorarioPicoRow = { hora: string; cantidadTurnos: number };
+
+export type ConfiguracionResponse = { horaApertura: string; horaCierre: string };
+export type ConfiguracionRequest = ConfiguracionResponse;
 
 export type TorneoResponse = {
   torneoId: string;
@@ -244,6 +252,17 @@ export const api = {
     const qs = params.toString();
     return apiFetch<OcupacionEspacioResponse[]>(`/reportes/ocupacion${qs ? `?${qs}` : ""}`, {}, token);
   },
+  getHorariosPico: (token: string, desde?: string, hasta?: string) => {
+    const params = new URLSearchParams();
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+    const qs = params.toString();
+    return apiFetch<HorarioPicoRow[]>(`/reportes/horarios-pico${qs ? `?${qs}` : ""}`, {}, token);
+  },
+
+  getConfiguracion: (token: string) => apiFetch<ConfiguracionResponse>("/configuracion", {}, token),
+  actualizarConfiguracion: (token: string, body: ConfiguracionRequest) =>
+    apiFetch<ConfiguracionResponse>("/configuracion", { method: "PUT", body: JSON.stringify(body) }, token),
 
   getTorneos: (token: string) => apiFetch<TorneoResponse[]>("/torneos", {}, token),
   crearTorneo: (token: string, body: TorneoRequest) =>

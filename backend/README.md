@@ -84,5 +84,22 @@ dotnet ef migrations add NombreMigracion --project src/ClubesApi.Infrastructure 
 cuándo/dónde se juega cada partido (estado `Generado`); `PUT .../programar` los completa
 y pasa el partido a `Programado`.
 
+**Fase 4 — reportes y afinado**
+- `GET/PUT /api/configuracion` (horarios de apertura del complejo — fila única, se crea
+  con valores por defecto la primera vez que se consulta)
+- `GET /api/reportes/ocupacion` ahora devuelve además `horasOcupadas` y `ocupacionPct`,
+  calculado contra los horarios de apertura configurados
+- `GET /api/reportes/horarios-pico` (franjas horarias más reservadas en el rango elegido)
+- `Espacio.VencimientoValidacionHoras`: configurable por espacio (0 = sin vencimiento).
+  Un `BackgroundService` (`VencimientoReservasService`, corre cada 15 minutos) cancela
+  automáticamente las reservas con transferencia pendiente de validación que superaron
+  ese vencimiento, resolviendo el "Punto a evaluar" de `docs/05-reglas-de-negocio.md`
+  sobre turnos "tomados" sin pago real confirmado.
+- Se agregó un `JsonConverter<TimeOnly>` global: el converter por defecto de .NET solo
+  acepta `"HH:mm:ss"`, pero el `<input type="time">` de HTML produce `"HH:mm"`. Ahora la
+  API acepta ambos formatos al leer y siempre serializa como `"HH:mm"`.
+
 La pasarela de tarjeta directa sigue "a definir" (ver `docs/05-reglas-de-negocio.md`):
-no se integró ninguna porque el negocio todavía no eligió cuál.
+no se integró ninguna porque el negocio todavía no eligió cuál. La seña mínima para
+efectivo tampoco se implementó — el mismo documento dice explícitamente que se revisa
+"cuando se ajuste Configuración con datos reales de no-show".

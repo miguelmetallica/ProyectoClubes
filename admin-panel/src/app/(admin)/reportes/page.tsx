@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { api, BalanceResponse, OcupacionEspacioResponse } from "@/lib/api";
+import { api, BalanceResponse, HorarioPicoRow, OcupacionEspacioResponse } from "@/lib/api";
 
 function StatCard({ label, value, tone }: { label: string; value: string; tone?: "positive" | "negative" }) {
   return (
@@ -25,14 +25,20 @@ export default function ReportesPage() {
   const [hasta, setHasta] = useState("");
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [ocupacion, setOcupacion] = useState<OcupacionEspacioResponse[]>([]);
+  const [horariosPico, setHorariosPico] = useState<HorarioPicoRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const cargar = () => {
     if (!token) return;
-    Promise.all([api.getBalance(token, desde || undefined, hasta || undefined), api.getOcupacion(token, desde || undefined, hasta || undefined)])
-      .then(([b, o]) => {
+    Promise.all([
+      api.getBalance(token, desde || undefined, hasta || undefined),
+      api.getOcupacion(token, desde || undefined, hasta || undefined),
+      api.getHorariosPico(token, desde || undefined, hasta || undefined),
+    ])
+      .then(([b, o, h]) => {
         setBalance(b);
         setOcupacion(o);
+        setHorariosPico(h);
         setError(null);
       })
       .catch(() => setError("No se pudo conectar con la API."));
@@ -50,8 +56,8 @@ export default function ReportesPage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Reportes</h1>
       <p className="text-sm text-gray-500">
-        Ocupación y facturación por espacio, y balance general — se calcula agregando Reserva + Pago + Gasto, sin
-        entidades nuevas (ver docs/06-modelo-de-datos.md).
+        Ocupación y facturación por espacio, horarios pico y balance general — se calcula agregando Reserva + Pago
+        + Gasto contra los horarios de apertura configurados, sin entidades nuevas (ver docs/06-modelo-de-datos.md).
       </p>
 
       <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
@@ -79,34 +85,64 @@ export default function ReportesPage() {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th className="px-4 py-2">Espacio</th>
-              <th className="px-4 py-2">Turnos confirmados</th>
-              <th className="px-4 py-2">Facturación</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ocupacion.length === 0 && (
-              <tr><td className="px-4 py-3 text-gray-400" colSpan={3}>No hay turnos confirmados en el rango elegido.</td></tr>
-            )}
-            {ocupacion.map((o) => (
-              <tr key={o.espacioId} className="border-t border-gray-100">
-                <td className="px-4 py-2">{o.espacioNombre}</td>
-                <td className="px-4 py-2">{o.turnosConfirmados}</td>
-                <td className="px-4 py-2">${o.facturacion.toFixed(2)}</td>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Ocupación por espacio</h2>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+              <tr>
+                <th className="px-4 py-2">Espacio</th>
+                <th className="px-4 py-2">Turnos confirmados</th>
+                <th className="px-4 py-2">Horas ocupadas</th>
+                <th className="px-4 py-2">% Ocupación</th>
+                <th className="px-4 py-2">Facturación</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {ocupacion.length === 0 && (
+                <tr><td className="px-4 py-3 text-gray-400" colSpan={5}>No hay turnos confirmados en el rango elegido.</td></tr>
+              )}
+              {ocupacion.map((o) => (
+                <tr key={o.espacioId} className="border-t border-gray-100">
+                  <td className="px-4 py-2">{o.espacioNombre}</td>
+                  <td className="px-4 py-2">{o.turnosConfirmados}</td>
+                  <td className="px-4 py-2">{o.horasOcupadas}</td>
+                  <td className="px-4 py-2">{o.ocupacionPct}%</td>
+                  <td className="px-4 py-2">${o.facturacion.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-1 text-xs text-gray-400">
+          El % se calcula contra los horarios de apertura del complejo (ver Configuración).
+        </p>
       </div>
 
-      <p className="text-xs text-gray-400">
-        El % de ocupación real requiere modelar los horarios de apertura del complejo (Configuración), que todavía
-        no está en el modelo de datos.
-      </p>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Horarios pico</h2>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+              <tr>
+                <th className="px-4 py-2">Horario</th>
+                <th className="px-4 py-2">Cantidad de turnos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {horariosPico.length === 0 && (
+                <tr><td className="px-4 py-3 text-gray-400" colSpan={2}>No hay turnos en el rango elegido.</td></tr>
+              )}
+              {horariosPico.map((h) => (
+                <tr key={h.hora} className="border-t border-gray-100">
+                  <td className="px-4 py-2">{h.hora}</td>
+                  <td className="px-4 py-2">{h.cantidadTurnos}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

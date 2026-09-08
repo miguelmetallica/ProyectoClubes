@@ -70,8 +70,13 @@ npm start
   eventos, y tabla de posiciones/goleadores/tarjetas siempre calculados. Zonas + playoffs
   y eliminación directa quedan como valores válidos del enum pero sin generador
   automático todavía.
-- **Fase 4 (reportes)**: el balance y la facturación por espacio ya están; falta el %
-  de ocupación real, que requiere modelar los horarios de apertura del complejo.
+- **Fase 4 (reportes y afinado)**: % de ocupación real por espacio (contra los horarios
+  de apertura del complejo, editables en Configuración) y ranking de horarios pico. Se
+  resolvió el punto abierto del vencimiento automático de reservas con transferencia sin
+  validar: un proceso de fondo libera el turno si nadie la valida a tiempo (configurable
+  por espacio, igual criterio que la ventana de cancelación). La seña mínima para
+  efectivo sigue sin resolver a propósito — el propio documento de reglas de negocio
+  dice que se revisa más adelante con datos reales de no-show.
 
 ## Origen
 

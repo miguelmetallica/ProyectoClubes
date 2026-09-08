@@ -8,7 +8,8 @@ public record EspacioRequest(
     [property: Required] string Modalidad,
     decimal PrecioBase,
     decimal PctSena,
-    int VentanaCancelacionHoras);
+    int VentanaCancelacionHoras,
+    int VencimientoValidacionHoras);
 
 public record EspacioResponse(
     Guid EspacioId,
@@ -17,4 +18,5 @@ public record EspacioResponse(
     string Modalidad,
     decimal PrecioBase,
     decimal PctSena,
-    int VentanaCancelacionHoras);
+    int VentanaCancelacionHoras,
+    int VencimientoValidacionHoras);

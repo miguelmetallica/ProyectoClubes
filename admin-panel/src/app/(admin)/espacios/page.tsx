@@ -14,6 +14,7 @@ const initialForm: EspacioRequest = {
   precioBase: 0,
   pctSena: 50,
   ventanaCancelacionHoras: 24,
+  vencimientoValidacionHoras: 0,
 };
 
 export default function EspaciosPage() {
@@ -109,6 +110,14 @@ export default function EspaciosPage() {
           required
           value={form.ventanaCancelacionHoras}
           onChange={(e) => setForm({ ...form, ventanaCancelacionHoras: Number(e.target.value) })}
+          className="rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+        />
+        <input
+          type="number"
+          placeholder="Vencimiento validación (hs, 0 = sin vencimiento)"
+          required
+          value={form.vencimientoValidacionHoras}
+          onChange={(e) => setForm({ ...form, vencimientoValidacionHoras: Number(e.target.value) })}
           className="col-span-2 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
         />
         <button type="submit" className="col-span-2 rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700">
@@ -128,15 +137,16 @@ export default function EspaciosPage() {
               <th className="px-4 py-2">Precio</th>
               <th className="px-4 py-2">% Seña</th>
               <th className="px-4 py-2">Ventana (hs)</th>
+              <th className="px-4 py-2">Vencim. validación (hs)</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
           <tbody>
             {loading && (
-              <tr><td className="px-4 py-3 text-gray-400" colSpan={7}>Cargando…</td></tr>
+              <tr><td className="px-4 py-3 text-gray-400" colSpan={8}>Cargando…</td></tr>
             )}
             {!loading && espacios.length === 0 && (
-              <tr><td className="px-4 py-3 text-gray-400" colSpan={7}>Todavía no hay espacios cargados.</td></tr>
+              <tr><td className="px-4 py-3 text-gray-400" colSpan={8}>Todavía no hay espacios cargados.</td></tr>
             )}
             {espacios.map((esp) => (
               <tr key={esp.espacioId} className="border-t border-gray-100">
@@ -146,6 +156,7 @@ export default function EspaciosPage() {
                 <td className="px-4 py-2">${esp.precioBase}</td>
                 <td className="px-4 py-2">{esp.pctSena}%</td>
                 <td className="px-4 py-2">{esp.ventanaCancelacionHoras}</td>
+                <td className="px-4 py-2">{esp.vencimientoValidacionHoras || "—"}</td>
                 <td className="px-4 py-2 text-right">
                   <button onClick={() => onDelete(esp.espacioId)} className="text-xs text-red-600 hover:underline">
                     Eliminar

@@ -12,4 +12,8 @@ public record OcupacionEspacioResponse(
     Guid EspacioId,
     string EspacioNombre,
     int TurnosConfirmados,
-    decimal Facturacion);
+    decimal Facturacion,
+    double HorasOcupadas,
+    double OcupacionPct);
+
+public record HorarioPicoRow(TimeOnly Hora, int CantidadTurnos);

@@ -22,7 +22,7 @@ public class EspaciosController : ControllerBase
 
     private static EspacioResponse ToResponse(Espacio e) => new(
         e.EspacioId, e.Nombre, e.Deporte.ToString(), e.Modalidad.ToString(),
-        e.PrecioBase, e.PctSena, e.VentanaCancelacionHoras);
+        e.PrecioBase, e.PctSena, e.VentanaCancelacionHoras, e.VencimientoValidacionHoras);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EspacioResponse>>> GetAll()
@@ -56,7 +56,8 @@ public class EspaciosController : ControllerBase
             Modalidad = modalidad,
             PrecioBase = request.PrecioBase,
             PctSena = request.PctSena,
-            VentanaCancelacionHoras = request.VentanaCancelacionHoras
+            VentanaCancelacionHoras = request.VentanaCancelacionHoras,
+            VencimientoValidacionHoras = request.VencimientoValidacionHoras
         };
 
         _db.Espacios.Add(espacio);
@@ -84,6 +85,7 @@ public class EspaciosController : ControllerBase
         espacio.PrecioBase = request.PrecioBase;
         espacio.PctSena = request.PctSena;
         espacio.VentanaCancelacionHoras = request.VentanaCancelacionHoras;
+        espacio.VencimientoValidacionHoras = request.VencimientoValidacionHoras;
 
         await _db.SaveChangesAsync();
         return NoContent();

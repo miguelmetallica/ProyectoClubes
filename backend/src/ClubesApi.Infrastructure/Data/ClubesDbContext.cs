@@ -24,6 +24,8 @@ public class ClubesDbContext : DbContext
     public DbSet<Deuda> Deudas => Set<Deuda>();
     public DbSet<Gasto> Gastos => Set<Gasto>();
 
+    public DbSet<ConfiguracionComplejo> ConfiguracionComplejo => Set<ConfiguracionComplejo>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ClubesDbContext).Assembly);
