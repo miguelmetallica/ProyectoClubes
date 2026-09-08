@@ -120,6 +120,81 @@ export type OcupacionEspacioResponse = {
   facturacion: number;
 };
 
+export type TorneoResponse = {
+  torneoId: string;
+  nombre: string;
+  deporte: string;
+  categoria: string;
+  sistemaCompetencia: string;
+  puntosVictoria: number;
+  puntosEmpate: number;
+  puntosDerrota: number;
+  fechaInicio: string;
+  zonaId: string;
+};
+
+export type TorneoRequest = Omit<TorneoResponse, "torneoId" | "zonaId">;
+
+export type EquipoResponse = {
+  equipoId: string;
+  zonaId: string;
+  nombre: string;
+  capitanId?: string | null;
+  capitanNombre?: string | null;
+  cantidadJugadores: number;
+};
+
+export type EquipoRequest = { nombre: string; capitanId?: string | null };
+
+export type JugadorResponse = {
+  jugadorId: string;
+  equipoId: string;
+  nombre: string;
+  numero?: number | null;
+  posicion?: string | null;
+};
+
+export type JugadorRequest = { nombre: string; numero?: number | null; posicion?: string | null };
+
+export type PartidoResponse = {
+  partidoId: string;
+  zonaId: string;
+  equipoLocalId: string;
+  equipoLocalNombre: string;
+  equipoVisitanteId: string;
+  equipoVisitanteNombre: string;
+  espacioId?: string | null;
+  espacioNombre?: string | null;
+  fecha?: string | null;
+  hora?: string | null;
+  golesLocal?: number | null;
+  golesVisitante?: number | null;
+  estado: string;
+};
+
+export type ProgramarPartidoRequest = { espacioId: string; fecha: string; hora: string };
+
+export type EventoRequest = { jugadorId: string; tipo: string; minuto: number };
+
+export type ResultadoPartidoRequest = { golesLocal: number; golesVisitante: number; eventos: EventoRequest[] };
+
+export type TablaPosicionesRow = {
+  equipoId: string;
+  equipoNombre: string;
+  pj: number;
+  g: number;
+  e: number;
+  p: number;
+  gf: number;
+  gc: number;
+  dg: number;
+  pts: number;
+};
+
+export type GoleadorRow = { jugadorId: string; jugadorNombre: string; equipoNombre: string; goles: number };
+
+export type TarjetasRow = { jugadorId: string; jugadorNombre: string; equipoNombre: string; amarillas: number; rojas: number };
+
 export const api = {
   login: (email: string, password: string) =>
     apiFetch<AuthResponse>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
@@ -169,4 +244,36 @@ export const api = {
     const qs = params.toString();
     return apiFetch<OcupacionEspacioResponse[]>(`/reportes/ocupacion${qs ? `?${qs}` : ""}`, {}, token);
   },
+
+  getTorneos: (token: string) => apiFetch<TorneoResponse[]>("/torneos", {}, token),
+  crearTorneo: (token: string, body: TorneoRequest) =>
+    apiFetch<TorneoResponse>("/torneos", { method: "POST", body: JSON.stringify(body) }, token),
+
+  getEquipos: (token: string, torneoId: string) => apiFetch<EquipoResponse[]>(`/torneos/${torneoId}/equipos`, {}, token),
+  crearEquipo: (token: string, torneoId: string, body: EquipoRequest) =>
+    apiFetch<EquipoResponse>(`/torneos/${torneoId}/equipos`, { method: "POST", body: JSON.stringify(body) }, token),
+
+  getJugadores: (token: string, equipoId: string) => apiFetch<JugadorResponse[]>(`/equipos/${equipoId}/jugadores`, {}, token),
+  crearJugador: (token: string, equipoId: string, body: JugadorRequest) =>
+    apiFetch<JugadorResponse>(`/equipos/${equipoId}/jugadores`, { method: "POST", body: JSON.stringify(body) }, token),
+  eliminarJugador: (token: string, id: string) => apiFetch<void>(`/jugadores/${id}`, { method: "DELETE" }, token),
+
+  generarFixture: (token: string, torneoId: string) =>
+    apiFetch<PartidoResponse[]>(`/torneos/${torneoId}/generar-fixture`, { method: "POST" }, token),
+  getFixture: (token: string, torneoId: string) => apiFetch<PartidoResponse[]>(`/torneos/${torneoId}/fixture`, {}, token),
+  programarPartido: (token: string, id: string, body: ProgramarPartidoRequest) =>
+    apiFetch<PartidoResponse>(`/partidos/${id}/programar`, { method: "PUT", body: JSON.stringify(body) }, token),
+  cargarResultado: (token: string, id: string, body: ResultadoPartidoRequest) =>
+    apiFetch<PartidoResponse>(`/partidos/${id}/resultado`, { method: "POST", body: JSON.stringify(body) }, token),
+  getPartidosProgramados: (token: string, desde?: string, hasta?: string) => {
+    const params = new URLSearchParams();
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+    const qs = params.toString();
+    return apiFetch<PartidoResponse[]>(`/partidos${qs ? `?${qs}` : ""}`, {}, token);
+  },
+
+  getTabla: (token: string, torneoId: string) => apiFetch<TablaPosicionesRow[]>(`/torneos/${torneoId}/tabla`, {}, token),
+  getGoleadores: (token: string, torneoId: string) => apiFetch<GoleadorRow[]>(`/torneos/${torneoId}/goleadores`, {}, token),
+  getTarjetas: (token: string, torneoId: string) => apiFetch<TarjetasRow[]>(`/torneos/${torneoId}/tarjetas`, {}, token),
 };

@@ -75,6 +75,42 @@ export type PagoResponse = {
   fechaPago: string;
 };
 
+export type TorneoResponse = {
+  torneoId: string;
+  nombre: string;
+  deporte: string;
+  categoria: string;
+  sistemaCompetencia: string;
+  fechaInicio: string;
+};
+
+export type PartidoResponse = {
+  partidoId: string;
+  equipoLocalId: string;
+  equipoLocalNombre: string;
+  equipoVisitanteId: string;
+  equipoVisitanteNombre: string;
+  espacioNombre?: string | null;
+  fecha?: string | null;
+  hora?: string | null;
+  golesLocal?: number | null;
+  golesVisitante?: number | null;
+  estado: string;
+};
+
+export type TablaPosicionesRow = {
+  equipoId: string;
+  equipoNombre: string;
+  pj: number;
+  g: number;
+  e: number;
+  p: number;
+  gf: number;
+  gc: number;
+  dg: number;
+  pts: number;
+};
+
 export const api = {
   register: (nombre: string, email: string, password: string, telefono?: string) =>
     apiFetch<AuthResponse>("/auth/register", {
@@ -97,4 +133,8 @@ export const api = {
 
   crearPago: (token: string, body: { reservaId: string; metodo: string; monto: number; comprobanteUrl?: string }) =>
     apiFetch<PagoResponse>("/pagos", { method: "POST", body: JSON.stringify(body) }, token),
+
+  getTorneos: (token: string) => apiFetch<TorneoResponse[]>("/torneos", {}, token),
+  getFixture: (token: string, torneoId: string) => apiFetch<PartidoResponse[]>(`/torneos/${torneoId}/fixture`, {}, token),
+  getTabla: (token: string, torneoId: string) => apiFetch<TablaPosicionesRow[]>(`/torneos/${torneoId}/tabla`, {}, token),
 };

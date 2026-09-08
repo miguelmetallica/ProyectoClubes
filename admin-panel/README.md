@@ -24,12 +24,14 @@ src/app/login/            Login
 src/app/(admin)/           Rutas protegidas (requieren sesión con rol Admin)
   page.tsx                  Dashboard
   espacios/                 Gestión de espacios (CRUD completo)
-  calendario/                Calendario maestro (lectura)
+  calendario/                Calendario maestro (reservas + partidos ya programados)
   clientes/                   Listado de clientes + deudas por cliente (alta/marcar pagada)
   pagos/                        Validar pagos (aprobar/rechazar transferencias)
   gastos/                        Alta/baja de gastos
   reportes/                     Balance general y facturación por espacio (rango de fechas)
-  torneos/, configuracion/    Placeholders — Fase 3 y horarios de apertura
+  torneos/                       Crear torneo, equipos/jugadores, generar fixture,
+                                    programar partidos, cargar resultados, tabla/goleadores/tarjetas
+  configuracion/                Placeholder — horarios de apertura
 src/lib/api.ts              Cliente HTTP hacia el backend
 src/lib/auth-context.tsx    Sesión (JWT) persistida en localStorage
 ```

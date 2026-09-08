@@ -64,8 +64,12 @@ npm start
   y efectivo), más el módulo económico completo (`Deuda`, `Gasto`) y un balance general
   en Reportes. La pasarela de tarjeta sigue siendo un placeholder porque el negocio
   todavía no eligió cuál usar (ver `docs/05-reglas-de-negocio.md`).
-- **Fase 3 (torneos)**: entidades modeladas en la base de datos, pero sin endpoints ni
-  pantallas todavía — es el próximo paso natural.
+- **Fase 3 (torneos)**: creación de torneo (con Liga como sistema de competencia elegido
+  para el generador automático de fixture), equipos, jugadores, generación de fixture
+  round-robin, programación de partidos en el Calendario Maestro, carga de resultados y
+  eventos, y tabla de posiciones/goleadores/tarjetas siempre calculados. Zonas + playoffs
+  y eliminación directa quedan como valores válidos del enum pero sin generador
+  automático todavía.
 - **Fase 4 (reportes)**: el balance y la facturación por espacio ya están; falta el %
   de ocupación real, que requiere modelar los horarios de apertura del complejo.
 

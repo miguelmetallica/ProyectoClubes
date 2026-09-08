@@ -25,8 +25,9 @@ src/lib/api.ts       Cliente HTTP hacia el backend
 src/lib/auth-context.tsx   Sesión (JWT) persistida en AsyncStorage
 ```
 
-Torneos y Pagos son pantallas placeholder: sus endpoints todavía no existen en el
-backend (Fases 2 y 3 del roadmap, ver `../docs/07-roadmap-sugerido.md`). Reservar usa
+Torneos ya consume la API real (selector de torneo, tabla de posiciones y fixture, de
+solo lectura). Pagos sigue como placeholder: no hay endpoint de historial de pagos del
+cliente todavía (Fase 2 del roadmap, ver `../docs/07-roadmap-sugerido.md`). Reservar usa
 inputs de texto para fecha/horario en lugar de la grilla de disponibilidad por franjas
 de `docs/04-pantallas.md`, que requiere que el backend exponga los horarios libres por
 espacio y fecha.

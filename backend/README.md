@@ -63,9 +63,26 @@ dotnet ef migrations add NombreMigracion --project src/ClubesApi.Infrastructure 
 - `GET/POST/DELETE /api/gastos`
 - `GET /api/reportes/balance`, `GET /api/reportes/ocupacion`
 
-Las entidades de Torneos (`Torneo`, `Zona`, `Equipo`, `Jugador`, `Partido`,
-`EventoPartido`) ya están en el modelo de datos y la migración inicial, pero todavía no
-tienen controllers — es la Fase 3 del roadmap (ver `docs/07-roadmap-sugerido.md`).
+**Fase 3 — torneos**
+- `GET/POST /api/torneos` (al crear un torneo se genera automáticamente una "Zona Única")
+- `GET/POST /api/torneos/{id}/equipos`
+- `GET/POST /api/equipos/{equipoId}/jugadores`, `DELETE /api/jugadores/{id}`
+- `POST /api/torneos/{id}/generar-fixture` (round-robin todos-contra-todos; **solo Liga**
+  por ahora — zonas+playoffs y eliminación directa quedan como valores válidos del enum
+  `sistema_competencia` pero sin generador automático todavía)
+- `GET /api/torneos/{id}/fixture`
+- `PUT /api/partidos/{id}/programar` (asigna espacio/fecha/hora; valida que no choque con
+  una reserva ni con otro partido en el mismo espacio/horario — así comparte el
+  Calendario Maestro con las reservas sueltas)
+- `POST /api/partidos/{id}/resultado` (marcador + eventos de gol/asistencia/tarjeta;
+  recargar el resultado reemplaza los eventos anteriores)
+- `GET /api/partidos` (partidos ya programados en un rango de fechas, para el Calendario Maestro)
+- `GET /api/torneos/{id}/tabla`, `/goleadores`, `/tarjetas` (siempre calculados sobre
+  `Partido` + `EventoPartido`, nunca cargados a mano)
+
+`Partido.EspacioId/Fecha/Hora` son opcionales: el fixture se genera antes de saber
+cuándo/dónde se juega cada partido (estado `Generado`); `PUT .../programar` los completa
+y pasa el partido a `Programado`.
 
 La pasarela de tarjeta directa sigue "a definir" (ver `docs/05-reglas-de-negocio.md`):
 no se integró ninguna porque el negocio todavía no eligió cuál.

@@ -55,6 +55,7 @@ public enum SistemaCompetencia
 
 public enum EstadoPartido
 {
+    Generado,
     Programado,
     Jugado,
     Suspendido
