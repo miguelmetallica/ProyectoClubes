@@ -27,7 +27,7 @@ de cada fase del roadmap.
 
 | Carpeta | Qué es | Stack |
 |---|---|---|
-| [`backend/`](backend/) | API REST | .NET 8 (ASP.NET Core) + Entity Framework Core + SQL Server |
+| [`backend/`](backend/) | API REST | .NET 10 (ASP.NET Core) + Entity Framework Core + SQL Server |
 | [`admin-panel/`](admin-panel/) | Panel de Administración (web/tablet) | Next.js + React + TypeScript + Tailwind |
 | [`mobile-app/`](mobile-app/) | App del Cliente (celular) | Expo (React Native) + TypeScript |
 

@@ -1,6 +1,6 @@
 # Backend — ClubesApi
 
-API REST en .NET 8 (ASP.NET Core) + Entity Framework Core + SQL Server.
+API REST en .NET 10 (ASP.NET Core) + Entity Framework Core + SQL Server.
 
 ## Estructura
 
@@ -13,7 +13,8 @@ src/
 
 ## Requisitos
 
-- .NET 8 SDK
+- .NET 10 SDK (elegido por ser la versión LTS más nueva disponible al momento de armar
+  el proyecto — soporte largo, igual que .NET 8; .NET 9 es "STS", con soporte más corto)
 - SQL Server accesible (local, contenedor o Azure SQL)
 
 ## Configuración
